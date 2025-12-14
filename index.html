@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>عالم فلفل</title>
+
+<style>
+/* ==================================== */
+/* 🌿 المتغيرات (Variables) */
+/* ==================================== */
+:root{
+  --ink: #2f3e2f;    /* الحبر (اللون الأساسي للنص) */
+  --sage: #7f9f8a;   /* المريمية (لون أساسي هادئ) */
+  --olive: #5f7a67;  /* الزيتوني (لون ثانوي للأزرار) */
+  --sand: #efe8dc;   /* الرملي (لون الخلفية الأساسي) */
+  --rose: #e7b6c7;   /* الوردي الباودر الخفيف */
+}
+
+/* ==================================== */
+/* 🌎 التنسيق العام (Global Reset & Body) */
+/* ==================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body{
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--ink);
+  overflow: hidden; /* للحفاظ على العناصر العائمة داخل الشاشة */
+
+  /* خلفية هادئة متدرجة مع نقاط ضوء خفيفة */
+  background:
+    radial-gradient(1200px 600px at 10% 10%, #f6f1ea 0%, transparent 40%),
+    radial-gradient(900px 500px at 90% 20%, #e9f0ea 0%, transparent 45%),
+    linear-gradient(180deg, #f4efe6, var(--sand));
+}
+
+/* ==================================== */
+/* 🕊️ الشريط العلوي (Header) */
+/* ==================================== */
+header{
+  position: fixed; 
+  inset: 12px 12px auto 12px;
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 14px;
+  z-index: 10;
+
+  /* تأثير الزجاج الضبابي (Neumorphism / Glassmorphism) */
+  background: rgba(255, 255, 255, .6);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, .06);
+}
+
+header .title{
+  font-weight: 600; 
+  letter-spacing: .2px;
+}
+header .title span{
+  opacity: .7;
+}
+
+/* ==================================== */
+/* ✨ الأزرار (Buttons) */
+/* ==================================== */
+.btn{
+  border: 0; 
+  border-radius: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background .2s ease;
+  font-weight: 500;
+}
+.btn:hover{
+  opacity: .9;
+}
+
+.btn#musicBtn{
+  background: var(--sage);
+  color: #fff; 
+}
+.btn#aboutBtn{ 
+  background: var(--olive); 
+  color: #fff;
+  margin-right: 8px; /* فصل بين الأزرار */
+}
+
+/* ==================================== */
+/* 🍃 العناصر المتحركة (Floating & Clickable) */
+/* ==================================== */
+
+/* العناصر التي تتحرك دائمًا (ببطء) */
+.floating{
+  position: absolute;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .08));
+  animation: float 12s ease-in-out infinite alternate;
+}
+@keyframes float{
+  from{ transform: translateY(0) }
+  to{ transform: translateY(-22px) }
+}
+
+/* العناصر التي تتفاعل عند الضغط (تفتح صورة) */
+.clickable{
+  position: absolute; 
+  cursor: pointer;
+  transition: transform .25s ease, filter .25s ease;
+  z-index: 5; /* فوق العناصر العائمة لكن تحت المودال */
+}
+.clickable:hover{
+  transform: scale(1.05);
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, .12));
+}
+
+/* أوراق خفيفة متساقطة */
+.leaf{
+  position: absolute;
+  width: 18px; 
+  height: 10px;
+  background: var(--sage);
+  border-radius: 0 100% 0 100%;
+  opacity: .55;
+  animation: drift 18s linear infinite;
+}
+@keyframes drift{
+  from{ transform: translateX(-10vw) translateY(0) rotate(0deg) }
+  to{ transform: translateX(110vw) translateY(-30px) rotate(180deg) }
+}
+
+/* ==================================== */
+/* 🖼️ نافذة الصور (Modal) */
+/* ==================================== */
+#modal{
+  position: fixed; 
+  inset: 0;
+  background: rgba(20, 30, 20, .85);
+  display: none; /* يتم التحكم بها بواسطة الجافاسكريبت */
+  align-items: center; 
+  justify-content: center;
+  z-index: 999;
+  padding: 20px;
+}
+#modal figure{
+  margin: 0; 
+  max-width: min(92vw, 900px);
+}
+#modal img{
+  width: 100%; 
+  height: auto; 
+  display: block;
+  border-radius: 18px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, .35);
+}
+#modal figcaption{
+  margin-top: 10px; 
+  color: #e7efe7; 
+  opacity: .9;
+  text-align: center;
+  font-size: 1.1em;
+}
+
+#close{
+  position: absolute; 
+  top: 18px; 
+  right: 22px;
+  font-size: 32px; /* زيادة حجم الإغلاق قليلًا */
+  color: #fff; 
+  cursor: pointer;
+  line-height: 1;
+  transition: opacity .2s ease;
+}
+#close:hover{
+  opacity: .8;
+}
+
+/* ==================================== */
+/* 📝 تذييل الصفحة (Footer) */
+/* ==================================== */
+footer{
+  position: fixed; 
+  bottom: 12px; 
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: .7; 
+  font-size: 13px;
+  padding: 4px 8px; /* حماية بسيطة من التداخل */
+}
+
+/* ==================================== */
+/* 📱 استجابة للموبايل (Media Queries) */
+/* ==================================== */
+@media (max-width: 600px){
+  header{ 
+    inset: 8px;
+    flex-direction: column; /* جعل العنوان والأزرار فوق بعض */
+    gap: 8px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+  .floating{ 
+    animation-duration: 14s; /* تعديل سرعة الحركة */
+  }
+  header div:last-child {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="title">
+    عالم فلفل <span>— مساحة نباتية هادئة (◍•ᴗ•◍)✧*</span>
+  </div>
+  <div>
+    <button class="btn" id="aboutBtn">عنّي ^^</button>
+    <button class="btn" id="musicBtn">موسيقى XD</button>
+  </div>
+</header>
+
+<footer>
+  اضغطي على العناصر لفتح الصور — بعضُها يتحرّك دائمًا، والبعض عند الضغط فقط ><  
+</footer>
+
+<div id="modal">
+  <span id="close" onclick="closeModal()">×</span>
+  <figure>
+    <img id="modalImg" alt="">
+    <figcaption id="cap"></figcaption>
+  </figure>
+</div>
+
+<audio id="music" loop>
+  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3">
+  متصفحك لا يدعم عنصر الصوت.
+</audio>
+
+<img class="floating" src="https://i.imgur.com/jw7XcXG.png"
+     style="width: 64px; left: 8%; bottom: 18%; animation-duration: 13s" alt="نبات منزلي صغير">
+
+<img class="floating" src="https://i.imgur.com/4AiXzf8.png"
+     style="width: 36px; left: 22%; top: 30%; animation-duration: 15s" alt="فراشة محلقة">
+
+<img class="floating" src="https://i.imgur.com/QZ6FJpL.png"
+     style="width: 54px; right: 10%; bottom: 20%; animation-duration: 14s" alt="سمكة تسبح">
+
+<img class="clickable" src="https://i.imgur.com/JYUB0m3.png"
+     style="width: 88px; left: 36%; bottom: 16%"
+     onclick="openModal(this.src,'شخصية مفضّلة ^o^')" alt="شخصية كرتونية">
+
+<img class="clickable" src="https://i.imgur.com/6qK4QnM.png"
+     style="width: 92px; right: 34%; bottom: 18%"
+     onclick="openModal(this.src,'قطة — مزاج هادئ ಠ_ಠ')" alt="صورة قطة">
+
+<img class="clickable" src="https://i.imgur.com/yXOvdOS.png"
+     style="width: 74px; right: 22%; top: 28%"
+     onclick="openModal(this.src,'تفصيلة صغيرة (つ≧▽≦)つ')" alt="تفصيلة فنية">
+
+
+<script>
+/* الحصول على العناصر DOM */
+const music = document.getElementById('music');
+const modal = document.getElementById('modal');
+const modalImg = document.getElementById('modalImg');
+const figCaption = document.getElementById('cap');
+const musicBtn = document.getElementById('musicBtn');
+const aboutBtn = document.getElementById('aboutBtn');
+
+/* 1. التحكم بالموسيقى */
+musicBtn.onclick = () => {
+  if (music.paused) {
+    music.play();
+    musicBtn.textContent = 'إيقاف XD';
+  } else {
+    music.pause();
+    musicBtn.textContent = 'موسيقى XD';
+  }
+};
+
+/* 2. وظائف نافذة الصور (Modal Functions) */
+function openModal(src, cap) {
+  modalImg.src = src;
+  figCaption.textContent = cap || ''; // التأكد من وجود نص
+  modal.style.display = 'flex';
+}
+
+function closeModal() { 
+  modal.style.display = 'none'; 
+}
+
+/* زر "عنّي" يفتح صورة ومعلومات */
+aboutBtn.onclick = () => {
+  openModal(
+    'https://i.imgur.com/8QfQY0y.jpg',
+    'مساحة شخصية هادئة؛ نباتات، كائنات لطيفة، وحضور بسيط… بدون ضجيج XD'
+  );
+};
+
+/* إغلاق النافذة عند الضغط خارج الصورة */
+modal.addEventListener('click', (e) => {
+  if (e.target === modal) {
+    closeModal();
+  }
+});
+
+/* 3. إنشاء أوراق طايرة (Leaves) بشكل برمجي */
+const numLeaves = 8;
+for(let i = 0; i < numLeaves; i++) {
+  const l = document.createElement('div');
+  l.className = 'leaf';
+  
+  // توزيع الأوراق بشكل عشوائي
+  l.style.top = Math.random() * 80 + 'vh';
+  l.style.left = (-10 - Math.random() * 20) + 'vw';
+  
+  // تأخير الحركة لجعلها تبدو طبيعية
+  l.style.animationDelay = (Math.random() * 10) + 's';
+  
+  document.body.appendChild(l);
+}
+</script>
+
+</body>
+</html>
